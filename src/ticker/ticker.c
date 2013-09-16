@@ -4,44 +4,52 @@
 #define LCD_WIDTH 16
 const char BLUNK_CHAR = '_';
 
-void ticker(char *message);
-char* padding(char word, int count);
+struct ticker {
+        char *message;
+        int padding;
+        char *messagePos;
+        char snapshot[LCD_WIDTH + 1];
+};
+
+void init(struct ticker *t);
+void next(struct ticker *t);
+int hasNext(struct ticker *);
 
 int main() {
-  ticker("Hello World!");
-  ticker("apple");
+        struct ticker t = {.message = "apple"};
+        init(&t);
+        for (; hasNext(&t); next(&t)) {
+                printf("%s\n", t.snapshot);
+        }
 }
 
-void ticker(char *message) {
-  int msgLength = (int)strlen(message);
-  int i;
-  for (i = 0; i < LCD_WIDTH + msgLength; i++) {
-    char content[LCD_WIDTH + 1];
-    int paddingLeft = LCD_WIDTH  - i;
-    int paddingRight =i -  msgLength;
-    // padding left
-    if (paddingLeft > 0) {
-      strcat(content, padding(BLUNK_CHAR, paddingLeft));
-    }
-    // message
-    if (paddingLeft < LCD_WIDTH) {
-      int messageLeftPosition = i < LCD_WIDTH ? 0 : i - LCD_WIDTH;
-      int messageRightPosition = msgLength - i > 0 ? msgLength - i : msgLength; 
-      strncpy(content, message + messageLeftPosition, messageRightPosition);
-    }
-    // padding rigth
-    if (paddingRight > 0) {
-      strcat(content, padding(BLUNK_CHAR, paddingRight));
-    }
-    printf("%i %s\n", i, content);
-  }
+void init(struct ticker *t) {
+        t->padding = LCD_WIDTH;
+        t->messagePos = t->message;
+        memset(t->snapshot, 0x00, sizeof(t->snapshot));
 }
 
-char* padding(char word, int count) {
-  char result[count];
-  int i;
-  for (i = 0; i < count; i++) {
-    result[i] = word;
-  }
-  return result;
+void next(struct ticker *t) {
+        printf("padding=%i,messagePos=%s\n", t->padding, t->messagePos);
+        memset(t->snapshot, 0x00, sizeof(t->snapshot));
+        if (t->padding > 0) {
+                int i;
+                for (i = 0; i < t->padding; i++) {
+                        t->snapshot[i] = BLUNK_CHAR;
+                }
+        }
+
+        if (t->padding < LCD_WIDTH) {
+                strncat(t->snapshot, t->messagePos, (LCD_WIDTH - t->padding));
+        }
+        
+        if (t->padding > 0) {
+                t->padding--;
+        } else if (t->padding == 0 && *(t->messagePos) != '\0') {
+                t->messagePos++;
+        }
+}
+
+int hasNext(struct ticker *t) {
+        return *(t->messagePos) != '\0';
 }
