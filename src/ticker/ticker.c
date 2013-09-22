@@ -1,55 +1,60 @@
 #include <stdio.h>
 #include <string.h>
+#include <stdlib.h>
 
 #define LCD_WIDTH 16
 const char BLUNK_CHAR = '_';
 
-struct ticker {
+typedef struct {
         char *message;
-        int padding;
-        char *messagePos;
-        char snapshot[LCD_WIDTH + 1];
-};
+        char *snapshot;
+        int width;
+        int position;
+        int frames;
+} ticker;
 
-void init(struct ticker *t);
-void next(struct ticker *t);
-int hasNext(struct ticker *);
+ticker *ticker_create(const char *message, int width);
+void ticker_forward(ticker *t);
+void ticker_free(ticker *t);
 
 int main() {
-        struct ticker t = {.message = "apple"};
-        init(&t);
-        for (; hasNext(&t); next(&t)) {
-                printf("%s\n", t.snapshot);
+        ticker *t = ticker_create("hello Tokyo Adachi Hanahata 7 - 14 - 7", LCD_WIDTH);
+        int i;
+        for (i = 0; i < t->frames; i++) {
+                printf("%s\n", t->snapshot);
+                ticker_forward(t);
         }
+        ticker_free(t);
 }
 
-void init(struct ticker *t) {
-        t->padding = LCD_WIDTH;
-        t->messagePos = t->message;
-        memset(t->snapshot, 0x00, sizeof(t->snapshot));
+ticker *ticker_create(const char *message, int width) {
+        ticker *t = (ticker *)malloc(sizeof(ticker));
+        t->message = strdup(message);
+        t->width = width;
+        char *snapshot = (char *)malloc(sizeof(char) * (width + 1));
+        memset(snapshot, (int)BLUNK_CHAR, sizeof(char) * width);
+        snapshot[width + 1] = '\0';
+        t->snapshot = snapshot;
+        t->position = 0;
+        t-> frames = width + strlen(message) + 1;
+        return t;
 }
 
-void next(struct ticker *t) {
-        printf("padding=%i,messagePos=%s\n", t->padding, t->messagePos);
-        memset(t->snapshot, 0x00, sizeof(t->snapshot));
-        if (t->padding > 0) {
-                int i;
-                for (i = 0; i < t->padding; i++) {
-                        t->snapshot[i] = BLUNK_CHAR;
-                }
+void ticker_forward(ticker *t) {
+        int msglen = strlen(t->message);
+        char snapshot[t->width + 1];
+        sprintf(snapshot, "%s", t->snapshot + 1);
+        if (msglen > t->position) {
+                sprintf(snapshot, "%s%c", snapshot, *(t->message + t->position));
+                t->position++;
+        } else {
+                sprintf(snapshot, "%s%c", snapshot, BLUNK_CHAR);
         }
-
-        if (t->padding < LCD_WIDTH) {
-                strncat(t->snapshot, t->messagePos, (LCD_WIDTH - t->padding));
-        }
-        
-        if (t->padding > 0) {
-                t->padding--;
-        } else if (t->padding == 0 && *(t->messagePos) != '\0') {
-                t->messagePos++;
-        }
+        strcpy(t->snapshot, snapshot);
 }
 
-int hasNext(struct ticker *t) {
-        return *(t->messagePos) != '\0';
+void ticker_free(ticker *t) {
+        free(t->message);
+        free(t->snapshot);
+        free(t);
 }
