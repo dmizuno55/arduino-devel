@@ -1,21 +1,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
-
-#define LCD_WIDTH 16
-const char BLUNK_CHAR = '_';
-
-typedef struct {
-        char *message;
-        char *snapshot;
-        int width;
-        int position;
-        int frames;
-} ticker;
-
-ticker *ticker_create(const char *message, int width);
-void ticker_forward(ticker *t);
-void ticker_free(ticker *t);
+#include "ticker.h"
 
 int main() {
         ticker *t = ticker_create("hello Tokyo Adachi Hanahata 7 - 14 - 7", LCD_WIDTH);
