@@ -4,7 +4,7 @@
 #include "ticker.h"
 
 int main() {
-        ticker *t = ticker_create("hello Tokyo Adachi Hanahata 7 - 14 - 7", LCD_WIDTH);
+        ticker *t = ticker_create("hello ticker!", LCD_WIDTH);
         int i;
         for (i = 0; i < t->frames; i++) {
                 printf("%s\n", t->snapshot);
