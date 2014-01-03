@@ -39,7 +39,7 @@ int ticker_forward(ticker *t) {
         return 1;
 }
 
-void ticker_free(ticker *t) {
+void ticker_destroy(ticker *t) {
         free(t->message);
         free(t);
 }

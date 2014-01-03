@@ -12,5 +12,5 @@ typedef struct {
 ticker *ticker_create(const char *message, int width);
 char ticker_sequence(ticker *t);
 int ticker_forward(ticker *t);
-void ticker_free(ticker *t);
+void ticker_destroy(ticker *t);
 

@@ -14,7 +14,7 @@ int main() {
                 printf("\n");
         } while(ticker_forward(t));
         
-        ticker_free(t);
+        ticker_destroy(t);
 }
 
 void print_debug(ticker *t) {
