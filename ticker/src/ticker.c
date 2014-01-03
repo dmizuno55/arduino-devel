@@ -3,44 +3,43 @@
 #include <stdlib.h>
 #include "ticker.h"
 
-int main() {
-        ticker *t = ticker_create("hello ticker!", LCD_WIDTH);
-        int i;
-        for (i = 0; i < t->frames; i++) {
-                printf("%s\n", t->snapshot);
-                ticker_forward(t);
-        }
-        ticker_free(t);
-}
-
 ticker *ticker_create(const char *message, int width) {
         ticker *t = (ticker *)malloc(sizeof(ticker));
         t->message = strdup(message);
         t->width = width;
-        char *snapshot = (char *)malloc(sizeof(char) * (width + 1));
-        memset(snapshot, (int)BLUNK_CHAR, sizeof(char) * width);
-        snapshot[width + 1] = '\0';
-        t->snapshot = snapshot;
-        t->position = 0;
-        t-> frames = width + strlen(message) + 1;
+        t->head = 0;
+        t->cursor = 0;
+        t->message_length = strlen(t->message);
         return t;
 }
 
-void ticker_forward(ticker *t) {
-        int msglen = strlen(t->message);
-        char snapshot[t->width + 1];
-        sprintf(snapshot, "%s", t->snapshot + 1);
-        if (msglen > t->position) {
-                sprintf(snapshot, "%s%c", snapshot, *(t->message + t->position));
-                t->position++;
-        } else {
-                sprintf(snapshot, "%s%c", snapshot, BLUNK_CHAR);
+char ticker_sequence(ticker *t) {
+        char c;
+        int position = t->head + t->cursor;
+
+        // 表示の終端に達した場合、NUL文字を返却する
+        if (t->cursor >= t->width) {
+                return '\0';
         }
-        strcpy(t->snapshot, snapshot);
+
+        c = BLUNK_CHAR;
+        if (t->width <= position && t->width + t->message_length > position) {
+                c = *(t->message + (position - t->width));
+        }
+        t->cursor++;
+        return c;
+}
+
+int ticker_forward(ticker *t) {
+        if (t->head + 1 > t->message_length + t->width) {
+                return 0;
+        }
+        t->head++;
+        t->cursor = 0;
+        return 1;
 }
 
 void ticker_free(ticker *t) {
         free(t->message);
-        free(t->snapshot);
         free(t);
 }

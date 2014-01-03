@@ -1,15 +1,16 @@
 #define LCD_WIDTH 16
-const char BLUNK_CHAR = '_';
+static const char BLUNK_CHAR = ' ';
 
 typedef struct {
         char *message;
-        char *snapshot;
         int width;
-        int position;
-        int frames;
-} ticker;
+        int head;
+        int message_length;
+        int cursor;
+ } ticker;
 
 ticker *ticker_create(const char *message, int width);
-void ticker_forward(ticker *t);
+char ticker_sequence(ticker *t);
+int ticker_forward(ticker *t);
 void ticker_free(ticker *t);
 
