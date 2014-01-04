@@ -39,6 +39,11 @@ int ticker_forward(ticker *t) {
         return 1;
 }
 
+void ticker_rewind(ticker *t) {
+        t->head = 0;
+        t->cursor = 0;
+}
+
 void ticker_destroy(ticker *t) {
         free(t->message);
         free(t);
